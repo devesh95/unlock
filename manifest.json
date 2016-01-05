@@ -1,0 +1,38 @@
+{
+    "manifest_version": 2,
+
+    "name": "Phone Unlock",
+    "description": "Allows you to log into your favorite services by scanning a QR Code.",
+
+    "version": "1.0",
+
+    "background": {
+        "scripts": [ "background.js" ],
+        "persistent": false
+    },
+
+    "permissions": [
+      "declarativeContent",
+      "activeTab"
+    ],
+
+    "content_scripts": [
+      {
+        "matches": [
+          "http://www.facebook.com/*",
+          "https://www.facebook.com/*"
+        ],
+        "css": ["content_scripts/parse.css"],
+        "js": [
+          "content_scripts/jquery.min.js",
+          "content_scripts/main.js"
+        ]
+      }
+    ],
+
+    "page_action": {
+        "default_popup": "popup/popup.html",
+        "default_icon": "popup/icon.png",
+        "default_title": "IAmA Parser"
+    }
+}
