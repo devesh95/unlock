@@ -6,7 +6,7 @@
 
 // first check if the page is the main login page
 var title = document.title;
-var URL = window.location.href;
+var URL = window.location.href.toLowerCase();
 if (title.indexOf('Log In or Sign Up') > -1 && URL.indexOf('attempt') == -1) {
     console.log('Running a Facebook login.')
     // find login box
