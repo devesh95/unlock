@@ -13,13 +13,16 @@
 
   "permissions": [
     "declarativeContent",
-    "activeTab"
+    "activeTab",
+    "tabs"
   ],
 
   "content_scripts": [{
     "matches": [
+      "http://*/*",
+      "https://*/*",
       "http://www.facebook.com/*",
-      "https://www.facebook.com/*", 
+      "https://www.facebook.com/*",
       "http://accounts.google.com/*",
       "https://accounts.google.com/*"
     ],

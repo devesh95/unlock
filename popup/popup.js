@@ -8,6 +8,7 @@ $(function() {
       opened: true
     }, function(response) {});
   });
+
   // receives the page title from the content script and calls init
   chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
@@ -70,10 +71,9 @@ $(function() {
     } else {
       account = 'N/A';
     }
-    console.log(account);
 
     // make the QR code with the account and the code
-    qrcode.makeCode(account + '::' + session_id);
+    qrcode.makeCode(session_id);
 
     var socket = io('https://phone-unlock.herokuapp.com/');
     socket.emit('knock', session_id);
@@ -84,22 +84,21 @@ $(function() {
       chrome.tabs.executeScript(null, {
         code: 'window.login = {}; window.login.username="' + username + '"; window.login.password="' + password + '";'
       }, function() {
-        // then execute a specific login pattern
-        if (account === 'facebook') {
-          // run facebook script
-          chrome.tabs.executeScript(null, {
-            file: 'popup/facebook.js'
-          }, function(resp) {
-            console.log(resp);
-          });
-        } else if (account === 'google') {
-          // run google script
-          chrome.tabs.executeScript(null, {
-            file: 'popup/google.js'
-          }, function(resp) {
-            console.log(resp);
-          });
-        }
+        chrome.tabs.query({
+          active: true,
+          currentWindow: true
+        }, function(tabs) {
+          var redirect = ''
+          if (details.account == 'facebook') {
+            redirect = 'https://www.facebook.com'
+          } else if (details.account == 'google') {
+            redirect = 'https://accounts.google.com'
+          }
+          chrome.tabs.sendMessage(tabs[0].id, {
+            redirect: redirect,
+            login: details
+          }, function(response) {});
+        });
       });
     });
   };
