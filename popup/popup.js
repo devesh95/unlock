@@ -78,28 +78,57 @@ $(function() {
     var socket = io('https://phone-unlock.herokuapp.com/');
     socket.emit('knock', session_id);
 
-    socket.on('login', function(details) {
-      var username = details.username;
-      var password = details.password;
-      chrome.tabs.executeScript(null, {
-        code: 'window.login = {}; window.login.username="' + username + '"; window.login.password="' + password + '";'
-      }, function() {
-        chrome.tabs.query({
-          active: true,
-          currentWindow: true
-        }, function(tabs) {
-          var redirect = ''
-          if (details.account == 'facebook') {
-            redirect = 'https://www.facebook.com'
-          } else if (details.account == 'google') {
-            redirect = 'https://accounts.google.com'
-          }
-          chrome.tabs.sendMessage(tabs[0].id, {
-            redirect: redirect,
-            login: details
-          }, function(response) {});
-        });
+    var username = 'details.username';
+    var password = 'details.password';
+    account = 'google';
+    var details = {
+      username: username,
+      password: password,
+      account: account
+    }
+    chrome.tabs.executeScript(null, {
+      code: 'window.login = {}; window.login.username="' + username + '"; window.login.password="' + password + '";'
+    }, function() {
+      chrome.tabs.query({
+        active: true,
+        currentWindow: true
+      }, function(tabs) {
+        var redirect = ''
+        if (account == 'facebook') {
+          redirect = 'https://www.facebook.com'
+        } else if (account == 'google') {
+          redirect = 'https://accounts.google.com'
+        }
+        chrome.tabs.sendMessage(tabs[0].id, {
+          redirect: redirect,
+          login: details
+        }, function(response) {});
       });
     });
+
+    // socket.on('login', function(details) {
+    //   var username = details.username;
+    //   var password = details.password;
+    //   var account = details.account.trim();
+    //   chrome.tabs.executeScript(null, {
+    //     code: 'window.login = {}; window.login.username="' + username + '"; window.login.password="' + password + '";'
+    //   }, function() {
+    //     chrome.tabs.query({
+    //       active: true,
+    //       currentWindow: true
+    //     }, function(tabs) {
+    //       var redirect = ''
+    //       if (account == 'facebook') {
+    //         redirect = 'https://www.facebook.com'
+    //       } else if (account == 'google') {
+    //         redirect = 'https://accounts.google.com'
+    //       }
+    //       chrome.tabs.sendMessage(tabs[0].id, {
+    //         redirect: redirect,
+    //         login: details
+    //       }, function(response) {});
+    //     });
+    //   });
+    // });
   };
 });

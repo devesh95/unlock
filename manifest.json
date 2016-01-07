@@ -14,7 +14,8 @@
   "permissions": [
     "declarativeContent",
     "activeTab",
-    "tabs"
+    "tabs",
+    "*://*/*"
   ],
 
   "content_scripts": [{

@@ -1,34 +1,22 @@
 // waits to hear when the popup is opened and sends the page title once it is
+console.log('Unlock scripts ready to run.');
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.opened) {
+      document.title += ' | unlock';
       chrome.runtime.sendMessage({
         title: document.title.toLowerCase()
       }, function(response) {});
     } else if (request.redirect) {
-      console.log('creating a new tab now');
-      chrome.tabs.getCurrent(function(tab) {
-        var openerId = tab.id;
-        chrome.tabs.create({
-          openerTabId: openerId,
-          url: request.redirect
-        }, function(tab) {
-          window.createdTab = tab
-        });
+      console.log('Logging in through a new tab...')
+      window.login = request.login;
+      chrome.runtime.sendMessage({
+        url: request.redirect
       });
     } else if (request.ping) {
-      console.log('incoming ping from tab ' + sender.id);
-      console.log(sender.id == window.createdTab.id)
-      if (sender.id == window.createdTab.id) {
-        var tabId = window.createdTab.id;
-        chrome.tabs.sendMessage(tabId, {
-          pong: {
-            username: window.login.username,
-            password: window.login.password
-          }
-        }, function() {});
-      }
+      sendResponse(window.login);
     } else if (request.pong) {
+      console.log('Logging in!');
       window.login = request.pong;
       if (window.location.href.indexOf('accounts.google') > -1 || window.location.href.indexOf('facebook') > -1) {
         var title = document.title.toLowerCase().trim();
@@ -41,32 +29,19 @@ chrome.runtime.onMessage.addListener(
         } else {
           account = 'N/A';
         }
-
+        var execute = '';
         // execute a specific login pattern
         if (account === 'facebook') {
           // run facebook script
-          chrome.tabs.executeScript(null, {
-            file: 'popup/facebook.js'
-          }, function(resp) {
-            console.log(resp);
-          });
+          execute = 'popup/facebook.js'
         } else if (account === 'google') {
           // run google script
-          chrome.tabs.executeScript(null, {
-            file: 'popup/google.js'
-          }, function(resp) {
-            console.log(resp);
-          });
+          execute = 'popup/google.js';
         }
+        chrome.runtime.sendMessage({
+          execute: execute,
+          tabId: request.tabId
+        });
       }
     }
   });
-
-// send ping on every new tab
-chrome.tabs.getCurrent(function(tab) {
-  var openerId = tab.openerTabId;
-  console.log('sending ping to tab ' + openerId);
-  chrome.tabs.sendMessage({
-    ping: true
-  }, function(response) {});
-});
